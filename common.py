@@ -2,9 +2,7 @@
 import RPi.GPIO as GPIO
 import time
 
-pinList = [2, 3, 4, 17, 22, 23, 10, 9]
-
-stationMap = {
+stationGPIO = {
   "COMMON": 2,
 
   "FRONT_GRASS": 3,
@@ -17,8 +15,9 @@ stationMap = {
 def init():
   GPIO.setmode(GPIO.BCM)
 
-  # loop through pins and set mode and state to 'low'
-  for i in pinList:
-      GPIO.setup(i, GPIO.OUT)
-      GPIO.output(i, GPIO.HIGH)
+  for name in stationGPIO:
+    pin = stationGPIO[name]
+
+    GPIO.setup(pin, GPIO.OUT)
+    GPIO.output(pin, GPIO.HIGH)
 

@@ -14,15 +14,15 @@ stationRunSeconds = {
 
 def run():
   common.init()
-  GPIO.output(common.stationMap["COMMON"], GPIO.LOW)
+  GPIO.output(common.stationGPIO["COMMON"], GPIO.LOW)
 
   try:  
-    for name in common.stationMap:
+    for name in common.stationGPIO:
       if name == "COMMON":
         continue
 
       seconds = stationRunSeconds[name]
-      pin = common.stationMap[name]
+      pin = common.stationGPIO[name]
 
       # Common needs to be run with every station
 
