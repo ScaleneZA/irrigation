@@ -2,21 +2,22 @@
 import RPi.GPIO as GPIO
 import time
 
+import config
 import common
 
 def run():
   common.init()
 
   # Common needs to be run with every station
-  GPIO.output(common.stationGPIO["COMMON"], GPIO.LOW)
+  GPIO.output(config.stationGPIO["COMMON"], GPIO.LOW)
 
   try:  
-    for name in common.stationGPIO:
+    for name in config.stationGPIO:
       if name == "COMMON":
         continue
 
-      seconds = common.stationRunSeconds[name]
-      pin = common.stationGPIO[name]
+      seconds = config.stationRunSeconds[name]
+      pin = config.stationGPIO[name]
 
       # TURN ON
       GPIO.output(pin, GPIO.LOW)
