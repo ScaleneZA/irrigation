@@ -2,28 +2,25 @@
 import RPi.GPIO as GPIO
 import time
 
-import common
-
 class Station:
-  def __init__(self, name: str, gpioPin: int, runTime: int):
+  def __init__(self, name, gpiopin, runtime):
     self.name = name
-    self.gpioPin = gpioPin
-    self.runTime = runTime  
+    self.gpiopin = gpiopin
+    self.runtime = runtime
 
-  def run(self, commonPin: int):
-    common.init()
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(self.gpiopin, GPIO.OUT)
+    GPIO.output(self.gpiopin, GPIO.HIGH)
 
-    # Common needs to be run with every station
-    GPIO.output(commonPin, GPIO.LOW)
+  def start(self, commonpin):
+    GPIO.output(commonpin, GPIO.LOW)
+    GPIO.output(self.gpiopin, GPIO.LOW)
 
-    try:  
-      # TURN ON
-      GPIO.output(self.gpioPin, GPIO.LOW)
-      
-      time.sleep(self.runTime);
+  def stop(self, commonpin):
+    GPIO.output(self.gpiopin, GPIO.HIGH)
+    GPIO.output(commonpin, GPIO.HIGH)
 
-      # TURN OFF
-      GPIO.output(gpioPin, GPIO.HIGH)
-    finally:
-      GPIO.cleanup()
-
+  def run(self, commonpin):
+    self.start(commonpin)
+    time.sleep(self.runtime)
+    self.stop(commonpin)
