@@ -4,16 +4,10 @@ import time
 
 import common
 
-stationRunSeconds = {
-  "FRONT_GRASS": 10 * 60,
-  "FRONT_PLANTS": 10 * 60,
-  "BACK_GRASS": 7 * 60,
-  "BACK_PLANTS": 10 * 60,
-  "DRIVEWAY_PLANTS": 7 * 60,
-}
-
 def run():
   common.init()
+
+  # Common needs to be run with every station
   GPIO.output(common.stationGPIO["COMMON"], GPIO.LOW)
 
   try:  
@@ -21,11 +15,10 @@ def run():
       if name == "COMMON":
         continue
 
-      seconds = stationRunSeconds[name]
+      seconds = common.stationRunSeconds[name]
       pin = common.stationGPIO[name]
 
-      # Common needs to be run with every station
-
+      # TURN ON
       GPIO.output(pin, GPIO.LOW)
 
       print (name)
@@ -33,6 +26,8 @@ def run():
       print ("Going to run for " + str(seconds / 60) + " minutes")
 
       time.sleep(seconds);
+
+      # TURN OFF
       GPIO.output(pin, GPIO.HIGH)
 
       print ("Done")
