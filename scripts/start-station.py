@@ -8,7 +8,7 @@ import config
 
 name = sys.argv[1]
 
-for station in config.stations:
+for station in globals()["stations"]:
   if station.name != name:
     continue
 
