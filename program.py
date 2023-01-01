@@ -34,4 +34,10 @@ def run():
             print ("")
 
     finally:
+        # Final attempt at Turn everything off
+        GPIO.output(config.commonPin, GPIO.HIGH)
+        for st in config.stations:
+            GPIO.setup(st["gpiopin"], GPIO.OUT)
+            GPIO.output(st["gpiopin"], GPIO.HIGH)
+
         GPIO.cleanup()

@@ -10,3 +10,5 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(config.commonPin, GPIO.OUT)
 
 print (GPIO.input(config.commonPin))
+
+GPIO.cleanup()
