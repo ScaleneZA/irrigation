@@ -1,4 +1,6 @@
 #!/usr/bin/python
+# You should be able to use this script to run a single station using the name as an arugment.
+
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 

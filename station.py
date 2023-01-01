@@ -8,11 +8,15 @@ class Station:
     self.gpiopin = gpiopin
     self.runtime = runtime
 
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(self.gpiopin, GPIO.OUT)
-    GPIO.output(self.gpiopin, GPIO.HIGH)
-
   def start(self, commonpin):
+    GPIO.setmode(GPIO.BCM)
+
+    GPIO.setup(commonpin, GPIO.OUT)
+    GPIO.setup(self.gpiopin, GPIO.OUT)
+
+    # Just in-case we are already running.
+    self.stop(commonpin)
+
     GPIO.output(commonpin, GPIO.LOW)
     GPIO.output(self.gpiopin, GPIO.LOW)
 
