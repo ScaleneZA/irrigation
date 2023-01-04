@@ -7,8 +7,9 @@ import config
 GPIO.setmode(GPIO.BCM)
 
 try:
+    GPIO.setup(config.commonPin, GPIO.OUT)
     GPIO.output(config.commonPin, GPIO.HIGH)
-    GPIO.output(st["gpiopin"], GPIO.LOW)
+    GPIO.output(config.commonPin, GPIO.LOW)
     GPIO.output(config.commonPin, GPIO.HIGH)
 
     # Initialize each GPIO pin
