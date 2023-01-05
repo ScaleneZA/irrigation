@@ -36,7 +36,7 @@ mqttTopicCritical = "irrigation/critical"
 
 def lookupStation(station):
     for st in stations:
-        if st.name == station:
+        if st["name"] == station:
             return st
 
     raise Exception("Invalid station")
