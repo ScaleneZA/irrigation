@@ -24,3 +24,7 @@ stations = [
         "runtime": 7 * 60
     },
 ]
+
+# The following is details for an MQTT Broker if you have one.
+mqttUser = "mqtt"
+mqttPassword = "#"
