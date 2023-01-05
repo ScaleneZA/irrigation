@@ -14,7 +14,7 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe(config.mqttTopicRunStation)
 
 # the callback function, it will be triggered when receiving messages
-def on_message(client, userdata, msg):
+def on_message(client, userdata, message):
     try:
         decoded_message=str(message.payload.decode("utf-8"))
         msg=json.loads(decoded_message)
