@@ -26,5 +26,9 @@ stations = [
 ]
 
 # The following is details for an MQTT Broker if you have one.
+mqttHost = "192.168.0.116"
 mqttUser = "mqtt"
-mqttPassword = "#"
+mqttPassword = "mqttT0nquani"
+
+mqttRunAllTopic = "irrigation/run-all"
+mqttStatusTopic = "irrigation/status"
