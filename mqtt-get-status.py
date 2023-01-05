@@ -25,6 +25,6 @@ client.username_pw_set(config.mqttUser, config.mqttPassword)
 client.connect(config.mqttHost, 1883, 60)
 
 client.publish(config.mqttStatusTopic, payload='{"status":"' + status + '"}', qos=0, retain=False)
-print(f"send {status} to raspberry/topic")
+print(f"send {status} to " + config.mqttStatusTopic)
 
 client.loop_forever()

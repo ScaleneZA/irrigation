@@ -15,8 +15,11 @@ def on_connect(client, userdata, flags, rc):
 
 # the callback function, it will be triggered when receiving messages
 def on_message(client, userdata, msg):
-    program.run()
-    client.publish(config.mqttStatusTopic, payload='{"status": "ON"}', qos=0, retain=False)
+    try:
+        client.publish(config.mqttStatusTopic, payload='{"status": "ON"}', qos=0, retain=False)
+        program.run()
+    finally:
+        client.publish(config.mqttStatusTopic, payload='{"status": "OFF"}', qos=0, retain=False)
 
 client = mqtt.Client()
 client.on_connect = on_connect
