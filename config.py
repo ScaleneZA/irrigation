@@ -30,5 +30,13 @@ mqttHost = "192.168.0.116"
 mqttUser = "mqtt"
 mqttPassword = "mqttT0nquani"
 
-mqttRunAllTopic = "irrigation/run-all"
-mqttStatusTopic = "irrigation/status"
+mqttTopicRunStation = "irrigation/run"
+mqttTopicStatus = "irrigation/status"
+mqttTopicCritical = "irrigation/critical"
+
+def lookupStation(station):
+    for st in stations:
+        if st.name == station:
+            return st
+
+    raise Exception("Invalid station")
