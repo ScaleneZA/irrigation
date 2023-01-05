@@ -15,7 +15,7 @@ def on_connect(client, userdata, flags, rc):
 # the callback function, it will be triggered when receiving messages
 def on_message(client, userdata, msg):
     # Intended to be piped into a file.
-    decoded_message=str(message.payload.decode("utf-8"))
+    decoded_message=str(msg.payload.decode("utf-8"))
     print(decoded_message)
 
 client = mqtt.Client()
