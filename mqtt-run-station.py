@@ -26,7 +26,7 @@ def on_message(client, userdata, msg):
             return
 
         runStation(client, config.lookupStation(msg["station"]))
-    except:
+    except Exception as e:
         # Don't kill the script when an exception happens
         print(e)
 
