@@ -37,6 +37,8 @@ def on_message(client, userdata, message):
         print(e)
 
 def runStation(client, station, status):
+    stopAllStations(client)
+
     client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "'+ status +'"}')
 
     event = Event()
@@ -68,14 +70,17 @@ def runAllStations(client, status):
         process.start()
         pids["ALL"] = event
     else:
-        # Use the event to kill the processes
-        for key in list(pids):
-            event = pids[key]
-            event.set()
-            del pids[key]
-            client.publish(config.mqttTopicStatus + "/" + key, '{"station": "' + key + '", "status": "OFF"}')
-            # client.loop is needed to publish because the loop forever is too slow to acknowledge it in this loop. Pulled my hair out over this bug.
-            client.loop()
+        stopAllStations(client)
+
+def stopAllStations(client):
+    # Use the event to kill the processes
+    for key in list(pids):
+        event = pids[key]
+        event.set()
+        del pids[key]
+        client.publish(config.mqttTopicStatus + "/" + key, '{"station": "' + key + '", "status": "OFF"}')
+        # client.loop is needed to publish because the loop forever is too slow to acknowledge it in this loop. Pulled my hair out over this bug.
+        client.loop()
 
 def runAll(client, event):
     for station in config.stations:
