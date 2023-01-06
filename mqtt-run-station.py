@@ -44,7 +44,7 @@ def runStation(client, station, status):
 
     event = Event()
     if status == "ON":
-        process = Process(target=runOne, args=(event, station))
+        process = Process(target=runOne, args=(client, event, station))
         process.start()
         pids[station["name"]] = event
     else:
@@ -57,10 +57,10 @@ def runStation(client, station, status):
             # Do nothing
             pass
 
-def runOne(client, station):
-    program.runOne(station)
+def runOne(client, event, station):
+    program.runOne(event, station)
     try:
-        program.runOne(station)
+        program.runOne(event, station)
     finally:
         client.publish(config.mqttTopicStatus + "/" + station["name"], payload='{"station": "' + station["name"] + '", "status": "OFF"}', qos=0, retain=False)
 
