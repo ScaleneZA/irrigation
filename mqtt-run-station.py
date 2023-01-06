@@ -36,7 +36,7 @@ def on_message(client, userdata, message):
         print(e)
 
 def runStation(client, station, status):
-    if status != "ON" && status != "OFF":
+    if status != "ON" and status != "OFF":
         print("Invalid status: " + status)
         return
 
