@@ -40,7 +40,7 @@ def runStation(client, station, status):
         print("Invalid status: " + status)
         return
 
-    client.publish(config.mqttTopicStatus + "/" + station["name"], payload='{"station": "' + station["name"] + '", "status": "'+ status +'}', qos=0, retain=False)
+    client.publish(config.mqttTopicStatus + "/" + station["name"], payload='{"station": "' + station["name"] + '", "status": "'+ status +'"}', qos=0, retain=False)
 
     event = Event()
     if status == "ON":
