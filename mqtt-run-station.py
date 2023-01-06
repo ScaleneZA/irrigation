@@ -10,8 +10,6 @@ import paho.mqtt.client as mqtt
 import program
 import config
 
-pids = {}
-
 def on_connect(client, userdata, flags, rc):
     print(f"Connected with result code {rc}")
     # subscribe, which need to put into on_connect
@@ -45,14 +43,14 @@ def runStation(client, station, status):
     if status == "ON":
         process = Process(target=runOne, args=(client, event, station))
         process.start()
-        pids[station["name"]] = event
+        globals("pids")[station["name"]] = event
 
     else:
         # Use the event to kill the process
         try:
-            event = pids[station["name"]]
+            event = globals("pids")[station["name"]]
             event.set()
-            del pids[station["name"]]
+            del globals("pids")[station["name"]]
         except:
             pass
 
@@ -68,16 +66,16 @@ def runAllStations(client, status):
         event = Event()
         process = Process(target=runAll, args=(client, event))
         process.start()
-        pids["ALL"] = event
+        globals("pids")["ALL"] = event
     else:
         stopAllStations(client)
 
 def stopAllStations(client):
     # Use the event to kill the processes
-    for key in list(pids):
-        event = pids[key]
+    for key in list(globals("pids")):
+        event = globals("pids")[key]
         event.set()
-        del pids[key]
+        del globals("pids")[key]
         client.publish(config.mqttTopicStatus + "/" + key, '{"station": "' + key + '", "status": "OFF"}')
         # client.loop is needed to publish because the loop forever is too slow to acknowledge it in this loop. Pulled my hair out over this bug.
         client.loop()
@@ -88,7 +86,7 @@ def runAll(client, event):
         # client.loop is needed to publish because the loop forever is too slow to acknowledge it in this loop. Pulled my hair out over this bug.
         client.loop()
 
-        pids[station["name"]] = event
+        globals("pids")[station["name"]] = event
         runOne(client, event, station)
 
         if event.is_set():
