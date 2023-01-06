@@ -43,14 +43,14 @@ def runStation(client, station, status):
     if status == "ON":
         process = Process(target=runOne, args=(client, event, station))
         process.start()
-        globals("pids")[station["name"]] = event
+        globals()["pid-" +station["name"]] = event
 
     else:
         # Use the event to kill the process
         try:
-            event = globals("pids")[station["name"]]
+            event = globals()["pid-" +station["name"]]
             event.set()
-            del globals("pids")[station["name"]]
+            del globals()["pid-" +station["name"]]
         except:
             pass
 
@@ -66,16 +66,19 @@ def runAllStations(client, status):
         event = Event()
         process = Process(target=runAll, args=(client, event))
         process.start()
-        globals("pids")["ALL"] = event
+        globals()["pid-ALL"] = event
     else:
         stopAllStations(client)
 
 def stopAllStations(client):
     # Use the event to kill the processes
-    for key in list(globals("pids")):
-        event = globals("pids")[key]
+    for key in list(globals()):
+        if "pid-" not in key:
+            continue
+
+        event = globals()[key]
         event.set()
-        del globals("pids")[key]
+        del globals()[key]
         client.publish(config.mqttTopicStatus + "/" + key, '{"station": "' + key + '", "status": "OFF"}')
         # client.loop is needed to publish because the loop forever is too slow to acknowledge it in this loop. Pulled my hair out over this bug.
         client.loop()
@@ -86,7 +89,7 @@ def runAll(client, event):
         # client.loop is needed to publish because the loop forever is too slow to acknowledge it in this loop. Pulled my hair out over this bug.
         client.loop()
 
-        globals("pids")[station["name"]] = event
+        globals()["pid-" +station["name"]] = event
         runOne(client, event, station)
 
         if event.is_set():
