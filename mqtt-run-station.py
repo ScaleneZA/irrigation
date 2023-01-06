@@ -73,7 +73,7 @@ def runAllStations(client, status):
         pids["ALL"] = event
     else:
         # Use the event to kill the processes
-        for key in pids:
+        for key in list(pids):
             event = pids[key]
             event.set()
             del pids[key]
