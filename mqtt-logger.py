@@ -8,9 +8,11 @@ import config
 
 def on_connect(client, userdata, flags, rc):
     print(f"Connected with result code {rc}")
-    client.subscribe(config.mqttTopicStatus)
     client.subscribe(config.mqttTopicRunStation)
     client.subscribe(config.mqttTopicCritical)
+
+    for st in config.stations:
+        client.subscribe(config.mqttTopicStatus + "/" + st["name"])
 
 # the callback function, it will be triggered when receiving messages
 def on_message(client, userdata, msg):

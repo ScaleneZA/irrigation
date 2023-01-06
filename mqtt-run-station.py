@@ -31,11 +31,11 @@ def on_message(client, userdata, message):
         print(e)
 
 def runStation(client, station):
-    client.publish(config.mqttTopicStatus, payload='{"station": "' + station["name"] + '", "status": "ON"}', qos=0, retain=False)
+    client.publish(config.mqttTopicStatus + "/" + station["name"], payload='{"station": "' + station["name"] + '", "status": "ON"}', qos=0, retain=False)
     try:
         program.runOne(station)
     finally:
-        client.publish(config.mqttTopicStatus, payload='{"station": "' + station["name"] + '", "status": "OFF"}', qos=0, retain=False)
+        client.publish(config.mqttTopicStatus + "/" + station["name"], payload='{"station": "' + station["name"] + '", "status": "OFF"}', qos=0, retain=False)
 
 client = mqtt.Client()
 client.on_connect = on_connect
