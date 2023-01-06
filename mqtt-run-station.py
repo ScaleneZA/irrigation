@@ -3,6 +3,7 @@
 import os, sys, json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from multiprocessing import Process
 import paho.mqtt.client as mqtt
 import program
 import config
@@ -33,9 +34,13 @@ def on_message(client, userdata, message):
 def runStation(client, station):
     client.publish(config.mqttTopicStatus + "/" + station["name"], payload='{"station": "' + station["name"] + '", "status": "ON"}', qos=0, retain=False)
     try:
-        program.runOne(station)
+        process = Process(target=runOne, args=(station,))
+        process.start()
     finally:
         client.publish(config.mqttTopicStatus + "/" + station["name"], payload='{"station": "' + station["name"] + '", "status": "OFF"}', qos=0, retain=False)
+
+def runOne(station):
+    program.runOne(station)
 
 client = mqtt.Client()
 client.on_connect = on_connect
