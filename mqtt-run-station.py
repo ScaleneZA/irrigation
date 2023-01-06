@@ -37,7 +37,7 @@ def on_message(client, userdata, message):
         print(e)
 
 def runStation(client, station, status, wait):
-    publish(client, config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "'+ status +'"}')
+    client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "'+ status +'"}')
 
     event = Event()
     if status == "ON":
@@ -61,7 +61,7 @@ def runOne(client, event, station):
     try:
         program.runOne(event, station)
     finally:
-        publish(client, config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "OFF"}')
+        client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "OFF"}')
 
 def runAllStations(client, status):
     if status == "ON":
@@ -75,7 +75,7 @@ def runAllStations(client, status):
             event = pids[key]
             event.set()
             del pids[key]
-            publish(client, config.mqttTopicStatus + "/" + key, '{"station": "' + key + '", "status": "OFF"}')
+            client.publish(config.mqttTopicStatus + "/" + key, '{"station": "' + key + '", "status": "OFF"}')
 
 def runAll(client, event):
     for st in config.stations:
@@ -83,10 +83,6 @@ def runAll(client, event):
 
         if event.is_set():
             break
-
-def publish(client, topic, message):
-    process = Process(target=client.publish, args=(topic, message))
-    process.start()
 
 #############################
 
