@@ -80,17 +80,21 @@ def stopAllStations(client):
     global pids
 
     # Use the event to kill the processes
-    for key in list(pids):
-        event = pids[key]
-        event.set()
-        del pids[key]
-        client.publish(config.mqttTopicStatus + "/" + key, '{"station": "' + key + '", "status": "OFF"}')
+    for station in config.stations:
+        client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "OFF"}')
         # client.loop is needed to publish because the loop forever is too slow to acknowledge it in this loop. Pulled my hair out over this bug.
         client.loop()
 
+        try:
+            event = pids[station["name"]]
+            event.set()
+            del pids[station["name"]]
+        except:
+            pass
+
 def runAll(client, event):
     global pids
-    
+
     for station in config.stations:
         client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "ON"}')
         # client.loop is needed to publish because the loop forever is too slow to acknowledge it in this loop. Pulled my hair out over this bug.
