@@ -36,7 +36,11 @@ def on_message(client, userdata, message):
         print(e)
 
 def runStation(client, station, status):
-    client.publish(config.mqttTopicStatus + "/" + station["name"], payload='{"station": "' + station["name"] + '", "status": "ON"}', qos=0, retain=False)
+    if status != "ON" && status != "OFF":
+        print("Invalid status: " + status)
+        return
+
+    client.publish(config.mqttTopicStatus + "/" + station["name"], payload='{"station": "' + station["name"] + '", "status": "'+ status +'}', qos=0, retain=False)
 
     event = Event()
     if status == "ON":
