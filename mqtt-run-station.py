@@ -27,35 +27,44 @@ def on_message(client, userdata, message):
         if msg["station"] == "ALL":
             # TODO (put the loop here, publish status for each station)
             for st in config.stations:
-                runStation(client, st, msg["status"])
+                runStation(client, st, msg["status"], True)
             return
 
-        runStation(client, config.lookupStation(msg["station"]), msg["status"])
+        runStation(client, config.lookupStation(msg["station"]), msg["status"], False)
     except Exception as e:
         # Don't kill the script when an exception happens
         print(e)
 
-def runStation(client, station, status):
+def runStation(client, station, status, wait):
     if status != "ON" and status != "OFF":
         print("Invalid status: " + status)
         return
 
-    client.publish(config.mqttTopicStatus + "/" + station["name"], payload='{"station": "' + station["name"] + '", "status": "'+ status +'"}', qos=0, retain=False)
+    # Publish asyncronously so that it doesn't wait for the sleep.
+    process = Process(target=publish, args=(client, config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "'+ status +'"}'))
+    process.start()
 
     event = Event()
     if status == "ON":
         process = Process(target=runOne, args=(client, event, station))
         process.start()
         pids[station["name"]] = event
+
+        if wait:
+            process.join()
     else:
         # Use the event to kill the process
         try:
             event = pids[station["name"]]
-            del pids[station["name"]]
             event.set()
         except:
             # Do nothing
             pass
+
+    del pids[station["name"]]
+
+def publish(client, topic, message):
+    client.publish(topic, payload=message, qos=0, retain=False)
 
 def runOne(client, event, station):
     program.runOne(event, station)
