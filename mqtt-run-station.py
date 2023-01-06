@@ -40,9 +40,7 @@ def runStation(client, station, status, wait):
         print("Invalid status: " + status)
         return
 
-    # Publish asyncronously so that it doesn't wait for the sleep.
-    process = Process(target=publish, args=(client, config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "'+ status +'"}'))
-    process.start()
+    client.publish(config.mqttTopicStatus + "/" + station["name"], payload='{"station": "' + station["name"] + '", "status": "'+ status +'"}', qos=0, retain=False)
 
     event = Event()
     if status == "ON":
@@ -58,13 +56,12 @@ def runStation(client, station, status, wait):
             event = pids[station["name"]]
             event.set()
         except:
-            # Do nothing
             pass
 
-    del pids[station["name"]]
-
-def publish(client, topic, message):
-    client.publish(topic, payload=message, qos=0, retain=False)
+    try:
+        del pids[station["name"]]
+    except:
+        pass
 
 def runOne(client, event, station):
     program.runOne(event, station)
