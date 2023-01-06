@@ -24,10 +24,12 @@ def on_message(client, userdata, message):
         decoded_message=str(message.payload.decode("utf-8"))
         msg=json.loads(decoded_message)
 
+        if msg["status"] != "ON" and msg["status"] != "OFF":
+            print("Invalid status: " + msg["status"])
+            return
+
         if msg["station"] == "ALL":
-            # TODO (put the loop here, publish status for each station)
-            for st in config.stations:
-                runStation(client, st, msg["status"], True)
+            runAllStations(client, msg["status"])
             return
 
         runStation(client, config.lookupStation(msg["station"]), msg["status"], False)
@@ -36,10 +38,6 @@ def on_message(client, userdata, message):
         print(e)
 
 def runStation(client, station, status, wait):
-    if status != "ON" and status != "OFF":
-        print("Invalid status: " + status)
-        return
-
     client.publish(config.mqttTopicStatus + "/" + station["name"], payload='{"station": "' + station["name"] + '", "status": "'+ status +'"}', qos=0, retain=False)
 
     event = Event()
@@ -55,13 +53,9 @@ def runStation(client, station, status, wait):
         try:
             event = pids[station["name"]]
             event.set()
+            del pids[station["name"]]
         except:
             pass
-
-    try:
-        del pids[station["name"]]
-    except:
-        pass
 
 def runOne(client, event, station):
     program.runOne(event, station)
@@ -69,6 +63,28 @@ def runOne(client, event, station):
         program.runOne(event, station)
     finally:
         client.publish(config.mqttTopicStatus + "/" + station["name"], payload='{"station": "' + station["name"] + '", "status": "OFF"}', qos=0, retain=False)
+
+def runAllStations(client, status):
+    event = Event()
+
+    if status == "ON":
+        process = Process(target=runAll, args=(client, event))
+        process.start()
+        pids["ALL"] = event
+    else:
+        # Use the event to kill the processes
+        for key in pids:
+            event = pids[key]
+            event.set()
+            del pids[key]
+            client.publish(config.mqttTopicStatus + "/" + key, payload='{"station": "' + key + '", "status": "OFF"}', qos=0, retain=False)
+
+def runAll(client, event):
+    for st in config.stations:
+        runStation(client, st, "ON", True)
+
+        if event.is_set():
+            break
 
 client = mqtt.Client()
 client.on_connect = on_connect
