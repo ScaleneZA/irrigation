@@ -31,12 +31,12 @@ def on_message(client, userdata, message):
             runAllStations(client, msg["status"])
             return
 
-        runStation(client, config.lookupStation(msg["station"]), msg["status"], False)
+        runStation(client, config.lookupStation(msg["station"]), msg["status"])
     except Exception as e:
         # Don't kill the script when an exception happens
         print(e)
 
-def runStation(client, station, status, wait):
+def runStation(client, station, status):
     client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "'+ status +'"}')
 
     event = Event()
@@ -45,8 +45,6 @@ def runStation(client, station, status, wait):
         process.start()
         pids[station["name"]] = event
 
-        if wait:
-            process.join()
     else:
         # Use the event to kill the process
         try:
@@ -78,8 +76,9 @@ def runAllStations(client, status):
             client.publish(config.mqttTopicStatus + "/" + key, '{"station": "' + key + '", "status": "OFF"}')
 
 def runAll(client, event):
-    for st in config.stations:
-        runStation(client, st, "ON", True)
+    for station in config.stations:
+        client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "ON"}')
+        runOne(client, event, station)
 
         if event.is_set():
             break
