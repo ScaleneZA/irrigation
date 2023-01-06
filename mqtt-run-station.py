@@ -74,6 +74,8 @@ def runAllStations(client, status):
             event.set()
             del pids[key]
             client.publish(config.mqttTopicStatus + "/" + key, '{"station": "' + key + '", "status": "OFF"}')
+            # client.loop is needed to publish because the loop forever is too slow to acknowledge it in this loop. Pulled my hair out over this bug.
+            client.loop()
 
 def runAll(client, event):
     for station in config.stations:
