@@ -10,6 +10,8 @@ import paho.mqtt.client as mqtt
 import program
 import config
 
+pids = {}
+
 def on_connect(client, userdata, flags, rc):
     print(f"Connected with result code {rc}")
     # subscribe, which need to put into on_connect
@@ -35,6 +37,8 @@ def on_message(client, userdata, message):
         print(e)
 
 def runStation(client, station, status):
+    global pids
+
     stopAllStations(client)
 
     client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "'+ status +'"}')
@@ -43,14 +47,14 @@ def runStation(client, station, status):
     if status == "ON":
         process = Process(target=runOne, args=(client, event, station))
         process.start()
-        globals()["pid-" +station["name"]] = event
+        pids[station["name"]] = event
 
     else:
         # Use the event to kill the process
         try:
-            event = globals()["pid-" +station["name"]]
+            event = pids[station["name"]]
             event.set()
-            del globals()["pid-" +station["name"]]
+            del pids[station["name"]]
         except:
             pass
 
@@ -62,34 +66,37 @@ def runOne(client, event, station):
         client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "OFF"}')
 
 def runAllStations(client, status):
+    global pids
+
     if status == "ON":
         event = Event()
         process = Process(target=runAll, args=(client, event))
         process.start()
-        globals()["pid-ALL"] = event
+        pids["ALL"] = event
     else:
         stopAllStations(client)
 
 def stopAllStations(client):
-    # Use the event to kill the processes
-    for key in list(globals()):
-        if "pid-" not in key:
-            continue
+    global pids
 
-        event = globals()[key]
+    # Use the event to kill the processes
+    for key in list(pids):
+        event = pids[key]
         event.set()
-        del globals()[key]
+        del pids[key]
         client.publish(config.mqttTopicStatus + "/" + key, '{"station": "' + key + '", "status": "OFF"}')
         # client.loop is needed to publish because the loop forever is too slow to acknowledge it in this loop. Pulled my hair out over this bug.
         client.loop()
 
 def runAll(client, event):
+    global pids
+    
     for station in config.stations:
         client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "ON"}')
         # client.loop is needed to publish because the loop forever is too slow to acknowledge it in this loop. Pulled my hair out over this bug.
         client.loop()
 
-        globals()["pid-" +station["name"]] = event
+        pids[station["name"]] = event
         runOne(client, event, station)
 
         if event.is_set():
