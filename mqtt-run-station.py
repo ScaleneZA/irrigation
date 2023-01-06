@@ -27,10 +27,10 @@ def on_message(client, userdata, message):
         if msg["station"] == "ALL":
             # TODO (put the loop here, publish status for each station)
             for st in config.stations:
-                runStation(client, st)
+                runStation(client, st, msg["status"])
             return
 
-        runStation(client, config.lookupStation(msg["station"]))
+        runStation(client, config.lookupStation(msg["station"]), msg["status"])
     except Exception as e:
         # Don't kill the script when an exception happens
         print(e)
