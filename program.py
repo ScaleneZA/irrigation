@@ -4,7 +4,7 @@ import time
 
 import config
 
-def runOne(station):
+def runOne(event, station):
     GPIO.setmode(GPIO.BCM)
 
     try:
@@ -16,7 +16,13 @@ def runOne(station):
         GPIO.output(station["gpiopin"], GPIO.HIGH)
         GPIO.output(station["gpiopin"], GPIO.LOW)
 
-        time.sleep(station["runtime"])
+        sleepCount = 0
+        while sleepCount <= station["runtime"]:
+            time.sleep(1)
+            sleepCount+=1
+
+            if event.is_set():
+                break
 
     finally:
         GPIO.output(config.commonPin, GPIO.HIGH)

@@ -4,9 +4,13 @@ import os, sys, json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from multiprocessing import Process
+from multiprocessing import Event
+
 import paho.mqtt.client as mqtt
 import program
 import config
+
+pids = {}
 
 def on_connect(client, userdata, flags, rc):
     print(f"Connected with result code {rc}")
@@ -31,16 +35,30 @@ def on_message(client, userdata, message):
         # Don't kill the script when an exception happens
         print(e)
 
-def runStation(client, station):
+def runStation(client, station, status):
     client.publish(config.mqttTopicStatus + "/" + station["name"], payload='{"station": "' + station["name"] + '", "status": "ON"}', qos=0, retain=False)
-    try:
-        process = Process(target=runOne, args=(station,))
+
+    event = Event()
+    if status == "ON":
+        process = Process(target=runOne, args=(event, station))
         process.start()
+        pids[station["name"]] = event
+    else:
+        # Use the event to kill the process
+        try:
+            event = pids[station["name"]]
+            del pids[station["name"]]
+            event.set()
+        except:
+            # Do nothing
+            pass
+
+def runOne(client, station):
+    program.runOne(station)
+    try:
+        program.runOne(station)
     finally:
         client.publish(config.mqttTopicStatus + "/" + station["name"], payload='{"station": "' + station["name"] + '", "status": "OFF"}', qos=0, retain=False)
-
-def runOne(station):
-    program.runOne(station)
 
 client = mqtt.Client()
 client.on_connect = on_connect
