@@ -12,12 +12,12 @@ import config
 
 pids = {}
 
+# on_connect is the callback for MQTT when it connects to the Broker.
 def on_connect(client, userdata, flags, rc):
     print(f"Connected with result code {rc}")
-    # subscribe, which need to put into on_connect
-    # if reconnect after losing the connection with the broker, it will continue to subscribe to the raspberry/topic topic
     client.subscribe(config.mqttTopicRunStation)
 
+# on_message is the callback for MQTT when it recieves a message from a topic that was subscribed to in on_connect.
 def on_message(client, userdata, message):
     try:
         decoded_message=str(message.payload.decode("utf-8"))
@@ -36,13 +36,14 @@ def on_message(client, userdata, message):
         # Don't kill the script when an exception happens
         print(e)
 
+# runStation will stop all stations and then run a single station asyncronously.
 def runStation(client, station, status):
     stopAllStations(client)
 
     client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "'+ status +'"}')
 
-    event = Event()
     if status == "ON":
+        event = Event()
         process = Process(target=runOne, args=(client, event, station))
         process.start()
         pids[station["name"]] = event
@@ -56,13 +57,14 @@ def runStation(client, station, status):
         except:
             pass
 
+# runOne is intended to be run asynchronously. It will run a single station for the given runtime.
 def runOne(client, event, station):
-    program.runOne(event, station)
     try:
         program.runOne(event, station)
     finally:
         client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "OFF"}')
 
+# runAllStations will stop all stations and then asynchronously call runAll
 def runAllStations(client, status):
     stopAllStations(client)
 
@@ -72,6 +74,7 @@ def runAllStations(client, status):
         process.start()
         pids["ALL"] = event
 
+# stopAllStations will stop all running asynconous processes.
 def stopAllStations(client):
     try:
         event = pids["ALL"]
@@ -94,6 +97,7 @@ def stopAllStations(client):
         # client.loop is needed to publish because the loop forever is too slow to acknowledge it in this loop. Pulled my hair out over this bug.
         client.loop()
 
+# runAll is intended to be run asyncronously. It loops over each station waiting for the run time to expire before calling the next station.
 def runAll(client, event):
     for station in config.stations:
         client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "ON"}')
