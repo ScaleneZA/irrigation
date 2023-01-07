@@ -64,15 +64,22 @@ def runOne(client, event, station):
         client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "OFF"}')
 
 def runAllStations(client, status):
+    stopAllStations(client)
+
     if status == "ON":
         event = Event()
         process = Process(target=runAll, args=(client, event))
         process.start()
         pids["ALL"] = event
-    else:
-        stopAllStations(client)
 
 def stopAllStations(client):
+    try:
+        event = pids["ALL"]
+        event.set()
+        del pids["ALL"]
+    except:
+        pass
+
     # Use the event to kill the processes
     for station in config.stations:
         client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "OFF"}')
