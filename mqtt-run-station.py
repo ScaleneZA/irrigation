@@ -19,6 +19,9 @@ def on_connect(client, userdata, flags, rc):
 
 # on_message is the callback for MQTT when it recieves a message from a topic that was subscribed to in on_connect.
 def on_message(client, userdata, message):
+    # Attempt at stopping consuming of messages too rapidly.
+    time.sleep(3)
+    
     try:
         decoded_message=str(message.payload.decode("utf-8"))
         msg=json.loads(decoded_message)
@@ -59,7 +62,6 @@ def runStation(client, station, status):
 
 # runOne is intended to be run asynchronously. It will run a single station for the given runtime.
 def runOne(client, event, station):
-    time.sleep(2)
     try:
         program.runOne(event, station)
     finally:
