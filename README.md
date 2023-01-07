@@ -8,7 +8,7 @@ You will also need to specify the GPIO pin for your "common" channel. This gets 
 
 Along with this, you are required to setup the MQTT broker along with which topics to subscribe and publish to.
 
-### Irrigation client
+### Irrigation client (Raspberry pi)
 I like to run the main script with a process manager (like [PM2](https://pm2.keymetrics.io/)) so that it can be restarted if it crashes. You can execute the main script simply by calling `python mqtt-run-station.py`. 
 
 You can montitor the topics with another script: `python mqtt-logger.py`. This is subscribed to the topics on the broker set up in `config.py` and will print out the payload when those topics are published to, and can be used for debugging if your client is recieving the topics correctly.
@@ -28,4 +28,11 @@ Because the irrigation client listens for topics on the broker, something needs 
 
 // Turn off all stations
 {"station":"ALL", "status":"OFF"}
+```
+
+You can subscribe to the MQTT Status topic set up in `config.py` to get feedback from the Irrigation client. This is especially useful when running all the stations, as you can see which station is active at any given time. The structure is the same as above:
+
+```json
+// Single Station turned on
+{"station":"FRONT_GRASS", "status":"ON"}
 ```
