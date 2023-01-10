@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # This script can be used to run all the stations for their default run-time.
-import os, sys, json
+import os, sys, json, time
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from multiprocessing import Process
@@ -59,6 +59,9 @@ def runStation(client, station, status):
 
 # runOne is intended to be run asynchronously. It will run a single station for the given runtime.
 def runOne(client, event, station):
+    # Attempt at stopping race condition for GPIO pins.
+    time.sleep(3)
+
     try:
         program.runOne(event, station)
     finally:
