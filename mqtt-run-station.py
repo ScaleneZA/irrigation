@@ -66,13 +66,18 @@ def runOne(client, event, station):
 
 # runAllStations will stop all stations and then asynchronously call runAll
 def runAllStations(client, status):
-    stopAllStations(client)
-
     if status == "ON":
+        stopAllStations(client)
+
+        client.publish(config.mqttTopicStatus + "/ALL", '{"station": "ALL", "status": "ON"}')
+        client.loop()
+
         event = Event()
         process = Process(target=runAll, args=(client, event))
         process.start()
         pids["ALL"] = event
+
+    stopAllStations(client)
 
 # stopAllStations will stop all running asynconous processes.
 def stopAllStations(client):
@@ -97,8 +102,12 @@ def stopAllStations(client):
         # client.loop is needed to publish because the loop forever is too slow to acknowledge it in this loop. Pulled my hair out over this bug.
         client.loop()
 
+    client.publish(config.mqttTopicStatus + "/ALL", '{"station": "ALL", "status": "OFF"}')
+
+
 # runAll is intended to be run asyncronously. It loops over each station waiting for the run time to expire before calling the next station.
 def runAll(client, event):
+    success = true
     for station in config.stations:
         client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "ON"}')
         pids[station["name"]] = event
@@ -109,7 +118,13 @@ def runAll(client, event):
         runOne(client, event, station)
 
         if event.is_set():
+            success = false
             break
+
+    if success {
+        client.publish(config.mqttTopicSuccessfulSequence)
+        client.loop()
+    }
 
 #############################
 

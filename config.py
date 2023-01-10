@@ -32,6 +32,7 @@ mqttPassword = "mqttT0nquani"
 
 mqttTopicRunStation = "irrigation/run"
 mqttTopicStatus = "irrigation/status"
+mqttTopicSuccessfulSequence = "irrigation/successful-sequence"
 mqttTopicCritical = "irrigation/critical"
 
 def lookupStation(station):
