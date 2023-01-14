@@ -81,9 +81,6 @@ def runAllStations(client, status):
         process.start()
         pids["ALL"] = event
 
-    time.sleep(5)
-    stopAllStations(client)
-
 # stopAllStations will stop all running asynconous processes.
 def stopAllStations(client):
     try:
@@ -126,6 +123,9 @@ def runAll(client, event):
             success = false
             break
 
+    time.sleep(5)
+    stopAllStations(client)
+    
     if success {
         client.publish(config.mqttTopicSuccessfulSequence)
         client.loop()
