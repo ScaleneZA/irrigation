@@ -60,12 +60,13 @@ def runStation(client, station, status):
 # runOne is intended to be run asynchronously. It will run a single station for the given runtime.
 def runOne(client, event, station):
     # Attempt at stopping race condition for GPIO pins.
-    time.sleep(3)
+    time.sleep(5)
 
     try:
         program.runOne(event, station)
     finally:
         client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "OFF"}')
+        client.loop()
 
 # runAllStations will stop all stations and then asynchronously call runAll
 def runAllStations(client, status):
@@ -80,6 +81,7 @@ def runAllStations(client, status):
         process.start()
         pids["ALL"] = event
 
+    time.sleep(5)
     stopAllStations(client)
 
 # stopAllStations will stop all running asynconous processes.
