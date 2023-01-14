@@ -125,11 +125,10 @@ def runAll(client, event):
 
     time.sleep(5)
     stopAllStations(client)
-    
-    if success {
+
+    if success:
         client.publish(config.mqttTopicSuccessfulSequence)
         client.loop()
-    }
 
 #############################
 
