@@ -109,7 +109,7 @@ def stopAllStations(client):
 
 # runAll is intended to be run asyncronously. It loops over each station waiting for the run time to expire before calling the next station.
 def runAll(client, event):
-    success = true
+    success = True
     for station in config.stations:
         client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "ON"}')
         pids[station["name"]] = event
@@ -120,7 +120,7 @@ def runAll(client, event):
         runOne(client, event, station)
 
         if event.is_set():
-            success = false
+            success = False
             break
 
     time.sleep(5)
