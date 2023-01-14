@@ -105,7 +105,7 @@ def stopAllStations(client):
         client.loop()
 
     client.publish(config.mqttTopicStatus + "/ALL", '{"station": "ALL", "status": "OFF"}')
-
+    client.loop()
 
 # runAll is intended to be run asyncronously. It loops over each station waiting for the run time to expire before calling the next station.
 def runAll(client, event):
