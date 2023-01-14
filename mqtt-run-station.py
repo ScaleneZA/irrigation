@@ -70,8 +70,9 @@ def runOne(client, event, station):
 
 # runAllStations will stop all stations and then asynchronously call runAll
 def runAllStations(client, status):
+    stopAllStations(client)
+
     if status == "ON":
-        stopAllStations(client)
 
         client.publish(config.mqttTopicStatus + "/ALL", '{"station": "ALL", "status": "ON"}')
         client.loop()
@@ -80,6 +81,8 @@ def runAllStations(client, status):
         process = Process(target=runAll, args=(client, event))
         process.start()
         pids["ALL"] = event
+
+
 
 # stopAllStations will stop all running asynconous processes.
 def stopAllStations(client):
