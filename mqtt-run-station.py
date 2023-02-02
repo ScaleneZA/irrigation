@@ -40,7 +40,7 @@ def on_message(client, userdata, message):
 def runStation(client, station, status):
     stopAllStations(client)
 
-    client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "'+ status +'"}', 1)
+    client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "'+ status +'"}')
 
     if status == "ON":
         event = Event()
@@ -65,7 +65,7 @@ def runOne(client, event, station):
     try:
         program.runOne(event, station)
     finally:
-        client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "OFF"}', 1)
+        client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "OFF"}')
         client.loop()
 
 # runAllStations will stop all stations and then asynchronously call runAll
@@ -74,7 +74,7 @@ def runAllStations(client, status):
 
     if status == "ON":
 
-        client.publish(config.mqttTopicStatus + "/ALL", '{"station": "ALL", "status": "ON"}', 1)
+        client.publish(config.mqttTopicStatus + "/ALL", '{"station": "ALL", "status": "ON"}')
         client.loop()
 
         event = Event()
@@ -95,7 +95,7 @@ def stopAllStations(client):
 
     # Use the event to kill the processes
     for station in config.stations:
-        client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "OFF"}', 1)
+        client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "OFF"}')
 
         try:
             event = pids[station["name"]]
@@ -107,14 +107,14 @@ def stopAllStations(client):
         # client.loop is needed to publish because the loop forever is too slow to acknowledge it in this loop. Pulled my hair out over this bug.
         client.loop()
 
-    client.publish(config.mqttTopicStatus + "/ALL", '{"station": "ALL", "status": "OFF"}', 1)
+    client.publish(config.mqttTopicStatus + "/ALL", '{"station": "ALL", "status": "OFF"}')
     client.loop()
 
 # runAll is intended to be run asyncronously. It loops over each station waiting for the run time to expire before calling the next station.
 def runAll(client, event):
     success = True
     for station in config.stations:
-        client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "ON"}', 1)
+        client.publish(config.mqttTopicStatus + "/" + station["name"], '{"station": "' + station["name"] + '", "status": "ON"}')
         pids[station["name"]] = event
 
         # client.loop is needed to publish because the loop forever is too slow to acknowledge it in this loop. Pulled my hair out over this bug.
@@ -130,7 +130,7 @@ def runAll(client, event):
     stopAllStations(client)
 
     if success:
-        client.publish(config.mqttTopicSuccessfulSequence, "", 1)
+        client.publish(config.mqttTopicSuccessfulSequence)
         client.loop()
 
 #############################
