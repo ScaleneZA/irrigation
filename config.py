@@ -22,6 +22,10 @@ stations = [
         "name": "DRIVEWAY_PLANTS",
         "gpiopin": 22,
         "runtime": 7 * 60
+    }, {
+        "name": "OTHER",
+        "gpiopin": 10,
+        "runtime": 15
     },
 ]
 
