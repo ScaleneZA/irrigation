@@ -5,23 +5,23 @@ stations = [
     {
         "name": "FRONT_GRASS",
         "gpiopin": 3,
-        "runtime": 10 * 60
+        "runtime": 8 * 60
     }, {
         "name": "FRONT_PLANTS",
         "gpiopin": 17,
-        "runtime": 10 * 60
+        "runtime": 8 * 60
     }, {
         "name": "BACK_GRASS",
         "gpiopin": 4,
-        "runtime": 7 * 60
+        "runtime": 6 * 60
     }, {
         "name": "BACK_PLANTS",
         "gpiopin": 23,
-        "runtime": 10 * 60
+        "runtime": 8 * 60
     }, {
         "name": "DRIVEWAY_PLANTS",
         "gpiopin": 22,
-        "runtime": 7 * 60
+        "runtime": 5 * 60
     }, {
         "name": "OTHER",
         "gpiopin": 10,
